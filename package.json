@@ -1,0 +1,17 @@
+{
+  "name": "ormus-links",
+  "version": "1.0.0",
+  "description": "Link intelligence PWA — save, extract, and organize web content with AI",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

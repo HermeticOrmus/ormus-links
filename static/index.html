@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0B0B0D">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Link Intelligence</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    :root {
+      --obsidian: #0B0B0D;
+      --surface: #111114;
+      --surface2: #1a1a1f;
+      --accent: #D29E3D;
+      --accent2: #C87A3B;
+      --parchment: #FAF6F0;
+      --muted: #555;
+      --danger: #c0392b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--obsidian);
+      color: var(--parchment);
+      min-height: 100dvh;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-top: env(safe-area-inset-top, 16px);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .header .stats {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 16px;
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--surface2);
+      color: var(--parchment);
+    }
+
+    .tab .count {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--obsidian);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 4px;
+    }
+
+    /* Add link form */
+    .add-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .add-form input {
+      flex: 1;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 8px;
+      color: var(--parchment);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .add-form input:focus {
+      border-color: var(--accent);
+    }
+
+    .add-form input::placeholder {
+      color: var(--muted);
+    }
+
+    .add-form button {
+      padding: 10px 16px;
+      background: var(--accent);
+      color: var(--obsidian);
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .add-form button:active {
+      opacity: 0.8;
+    }
+
+    /* Link card */
+    .link-card {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .link-card:active {
+      border-color: var(--accent);
+    }
+
+    .link-card .type-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .link-card .summary {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      color: var(--parchment);
+    }
+
+    .link-card .domain {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .link-card .domain a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .link-card .insights {
+      font-size: 12px;
+      color: #999;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      padding-left: 10px;
+      border-left: 2px solid var(--surface2);
+    }
+
+    .link-card .actions-list {
+      font-size: 12px;
+      color: var(--accent2);
+      margin-bottom: 8px;
+    }
+
+    .link-card .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .link-card .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: var(--surface2);
+      border-radius: 4px;
+      color: var(--muted);
+    }
+
+    .link-card .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .link-card .card-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .link-card .card-actions button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 0;
+    }
+
+    .link-card .card-actions button:hover {
+      color: var(--parchment);
+    }
+
+    .link-card .card-actions .archive-btn:hover { color: var(--accent); }
+    .link-card .card-actions .delete-btn:hover { color: var(--danger); }
+
+    /* Processing indicator */
+    .link-card.processing {
+      border-color: var(--accent2);
+    }
+
+    .link-card.processing .summary::after {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      margin-left: 6px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--muted);
+    }
+
+    .empty .icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      opacity: 0.3;
+    }
+
+    .empty p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      color: var(--parchment);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Links</h1>
+      <span class="stats" id="stats"></span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-filter="new">New <span class="count" id="count-new" style="display:none"></span></button>
+      <button class="tab" data-filter="all">All</button>
+      <button class="tab" data-filter="archived">Archived</button>
+    </div>
+
+    <div class="add-form">
+      <input type="url" id="url-input" placeholder="Paste URL..." autocomplete="off" />
+      <button id="add-btn">Save</button>
+    </div>
+
+    <div id="links-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentFilter = 'new';
+    let allLinks = [];
+
+    // --- Init ---
+    async function init() {
+      // Check for saved=true param (from share target redirect)
+      const params = new URLSearchParams(location.search);
+      if (params.get('saved') === 'true') {
+        showToast('Link saved');
+        history.replaceState({}, '', '/');
+      }
+      if (params.get('error')) {
+        showToast('Error: ' + params.get('error'));
+        history.replaceState({}, '', '/');
+      }
+
+      // Tab handlers
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentFilter = tab.dataset.filter;
+          loadLinks();
+        });
+      });
+
+      // Add link
+      document.getElementById('add-btn').addEventListener('click', addLink);
+      document.getElementById('url-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addLink();
+      });
+
+      // Register SW
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+      }
+
+      await loadLinks();
+      // Poll for processing updates
+      setInterval(refreshIfProcessing, 5000);
+    }
+
+    async function loadLinks() {
+      try {
+        const status = currentFilter === 'all' ? 'all' : currentFilter;
+        const res = await fetch(`/api/links?status=${status}`);
+        allLinks = await res.json();
+        renderLinks();
+        loadStats();
+      } catch (err) {
+        document.getElementById('links-list').innerHTML =
+          '<div class="empty"><p>Failed to load links</p></div>';
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/links/stats');
+        const s = await res.json();
+        document.getElementById('stats').textContent = `${s.total} total`;
+        const countNew = document.getElementById('count-new');
+        if (s.new > 0) {
+          countNew.textContent = s.new;
+          countNew.style.display = '';
+        } else {
+          countNew.style.display = 'none';
+        }
+      } catch {}
+    }
+
+    function renderLinks() {
+      const container = document.getElementById('links-list');
+
+      if (allLinks.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            <div class="icon">--</div>
+            <p>No links yet.<br>Share a URL from any app or paste one above.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = allLinks.map(link => {
+        const domain = getDomain(link.url);
+        const timeAgo = getTimeAgo(link.created);
+        const isProcessing = !link.processed && !link.process_error;
+        const intel = link.intel || {};
+
+        const insightsHtml = intel.insights?.length
+          ? `<div class="insights">${intel.insights.join('. ')}</div>`
+          : '';
+
+        const actionsHtml = intel.actions?.length
+          ? `<div class="actions-list">${intel.actions.join(' | ')}</div>`
+          : '';
+
+        const tagsHtml = intel.tags?.length
+          ? `<div class="tags">${intel.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
+          : '';
+
+        const typeBadge = intel.type
+          ? `<span class="type-badge">${intel.type}</span>`
+          : isProcessing
+            ? `<span class="type-badge">processing</span>`
+            : '';
+
+        const summary = intel.summary || link.title || link.url;
+
+        const archiveLabel = link.status === 'archived' ? 'Unarchive' : 'Archive';
+        const archiveStatus = link.status === 'archived' ? 'new' : 'archived';
+
+        return `
+          <div class="link-card ${isProcessing ? 'processing' : ''}">
+            ${typeBadge}
+            <div class="summary">${escHtml(summary)}</div>
+            <div class="domain"><a href="${escAttr(link.url)}" target="_blank" rel="noopener">${escHtml(domain)}</a></div>
+            ${insightsHtml}
+            ${actionsHtml}
+            ${tagsHtml}
+            <div class="meta">
+              <span>${timeAgo} · ${link.author || 'unknown'}</span>
+              <div class="card-actions">
+                <button class="archive-btn" onclick="updateStatus('${link.id}','${archiveStatus}')">${archiveLabel}</button>
+                <button class="delete-btn" onclick="deleteLink('${link.id}')">Delete</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function addLink() {
+      const input = document.getElementById('url-input');
+      const url = input.value.trim();
+      if (!url) return;
+
+      try {
+        const res = await fetch('/api/links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (data.status === 'saved') {
+          input.value = '';
+          showToast('Link saved');
+          await loadLinks();
+        }
+      } catch {
+        showToast('Save failed');
+      }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        await fetch(`/api/links/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+        await loadLinks();
+      } catch {}
+    }
+
+    async function deleteLink(id) {
+      try {
+        await fetch(`/api/links/${id}`, { method: 'DELETE' });
+        await loadLinks();
+      } catch {}
+    }
+
+    async function refreshIfProcessing() {
+      const hasProcessing = allLinks.some(l => !l.processed && !l.process_error);
+      if (hasProcessing) await loadLinks();
+    }
+
+    // --- Helpers ---
+    function getDomain(url) {
+      try { return new URL(url).hostname.replace(/^www\./, ''); }
+      catch { return url; }
+    }
+
+    function getTimeAgo(iso) {
+      const diff = Date.now() - new Date(iso).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      if (days === 1) return 'yesterday';
+      return days + 'd ago';
+    }
+
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    function escAttr(s) {
+      return (s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    init();
+  </script>
+</body>
+</html>
