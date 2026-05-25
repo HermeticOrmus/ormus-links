@@ -1,5 +1,21 @@
-# ormus-links
+<p align="center">
+  <img src="https://ormus.solutions/mascot/chain_braces_to_swan.gif" alt="ormus-links" width="128" style="image-rendering: pixelated;" />
+</p>
 
+<h1 align="center">ormus-links</h1>
+
+<p align="center">
+  <em>Link intelligence PWA — save, extract, and organize web content with AI</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/HermeticOrmus/ormus-links/stargazers"><img src="https://img.shields.io/github/stars/HermeticOrmus/ormus-links?style=flat-square&color=aa8142" alt="Stars" /></a>
+  <a href="https://github.com/HermeticOrmus/ormus-links/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HermeticOrmus/ormus-links?style=flat-square&color=aa8142" alt="License" /></a>
+  <a href="https://github.com/HermeticOrmus/ormus-links/commits"><img src="https://img.shields.io/github/last-commit/HermeticOrmus/ormus-links?style=flat-square&color=aa8142" alt="Last Commit" /></a>
+  <img src="https://img.shields.io/badge/Claude_Code-aa8142?style=flat-square&logo=anthropic&logoColor=white" alt="Claude Code" />
+</p>
+
+---
 Link intelligence PWA. Save URLs from any app's share sheet, and an AI extracts summaries, tags, insights, and action items automatically.
 
 ## What it does
